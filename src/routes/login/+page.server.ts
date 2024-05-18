@@ -4,41 +4,58 @@ import type { Actions } from './$types';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { userTable } from '$lib/server/db/schema';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+	username: z
+		.string({ required_error: 'Username is required' })
+		.min(3, { message: 'Username must be at least 3 characters' })
+		.max(31, { message: 'Username must be less than 32 characters' })
+		.trim(),
+	password: z
+		.string({ required_error: 'Username is required' })
+		.min(6, { message: 'Password must be at least 6 characters' })
+		.max(32, { message: 'Password must be less than 32 characters' })
+		.trim()
+});
 
 export const actions: Actions = {
 	login: async (event) => {
 		const formData = await event.request.formData();
-		const username = formData.get('username');
-		const password = formData.get('password');
+		const username = formData.get('username').toString();
+		const password = formData.get('password').toString();
 
-		if (
-			typeof username !== 'string' ||
-			username.length < 3 ||
-			username.length > 31 ||
-			!/^[a-z0-9_-]+$/.test(username)
-		) {
-			return fail(400, {
-				message: 'Invalid username'
-			});
+		try {
+			const result = loginSchema.parse({ username, password });
+			console.log(result);
+		} catch (error) {
+			const errors = error.flatten().fieldErrors;
+			console.log(errors);
+			return {
+				errors,
+				data: { username }
+			};
 		}
-		if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
-			return fail(400, {
-				message: 'Invalid password'
-			});
-		}
+
+		// if (
+		// 	typeof username !== 'string' ||
+		// 	username.length < 3 ||
+		// 	username.length > 31 ||
+		// 	!/^[a-z0-9_-]+$/.test(username)
+		// ) {
+		// 	return fail(400, {
+		// 		message: 'Invalid username'
+		// 	});
+		// }
+		// if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
+		// 	return fail(400, {
+		// 		message: 'Invalid password'
+		// 	});
+		// }
 
 		const existingUser = await db.select().from(userTable).where(eq(userTable.name, username));
-		if (!existingUser) {
+		if (!existingUser[0]) {
 			console.log('User not found');
-			// NOTE:
-			// Returning immediately allows malicious actors to figure out valid usernames from response times,
-			// allowing them to only focus on guessing passwords in brute-force attacks.
-			// As a preventive measure, you may want to hash passwords even for invalid usernames.
-			// However, valid usernames can be already be revealed with the signup page among other methods.
-			// It will also be much more resource intensive.
-			// Since protecting against this is non-trivial,
-			// it is crucial your implementation is protected against brute-force attacks with login throttling etc.
-			// If usernames are public, you may outright tell the user that the username is invalid.
 			return fail(400, {
 				message: 'Incorrect username or password'
 			});

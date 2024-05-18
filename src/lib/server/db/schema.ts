@@ -1,12 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { text, integer, sqliteTable } from 'drizzle-orm/sqlite-core';
 
-export const movies = sqliteTable('movies', {
-	id: integer('id').primaryKey().notNull(),
-	title: text('title'),
-	releaseYear: integer('release_year')
-});
-
 export const userTable = sqliteTable('user', {
 	id: text('id').primaryKey().notNull(),
 	name: text('name').notNull(),
