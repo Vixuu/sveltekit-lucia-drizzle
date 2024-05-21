@@ -9,13 +9,11 @@ import { z } from 'zod';
 const loginSchema = z.object({
 	username: z
 		.string({ required_error: 'Username is required' })
-		.min(3, { message: 'Username must be at least 3 characters' })
-		.max(31, { message: 'Username must be less than 32 characters' })
+		.min(1, { message: 'Username is required' })
 		.trim(),
 	password: z
-		.string({ required_error: 'Username is required' })
-		.min(6, { message: 'Password must be at least 6 characters' })
-		.max(32, { message: 'Password must be less than 32 characters' })
+		.string({ required_error: 'Password is required' })
+		.min(1, { message: 'Password is required' })
 		.trim()
 });
 
@@ -55,9 +53,9 @@ export const actions: Actions = {
 
 		const existingUser = await db.select().from(userTable).where(eq(userTable.name, username));
 		if (!existingUser[0]) {
-			console.log('User not found');
 			return fail(400, {
-				message: 'Incorrect username or password'
+				message: 'Incorrect username or password',
+				data: { username }
 			});
 		}
 
@@ -65,7 +63,8 @@ export const actions: Actions = {
 
 		if (!validPassword) {
 			return fail(400, {
-				message: 'Incorrect username or password'
+				message: 'Incorrect username or password',
+				data: { username }
 			});
 		}
 

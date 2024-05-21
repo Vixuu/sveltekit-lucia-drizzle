@@ -11,17 +11,22 @@
 	<h1 class="mb-3 text-center text-xl">Log in</h1>
 	<form action="?/login" use:enhance method="POST">
 		<Label for="username">Username</Label>
-		<Input name="username" id="username" value={form?.data?.username ?? ''} />
+		<Input name="username" id="username" value={form?.data.username ?? ''} />
 		{#if form?.errors?.username}
 			<div class="text-red-700">
 				<span class="block sm:inline">{form?.errors?.username[0]}</span>
 			</div>
 		{/if}
 		<Label for="password">Password</Label>
-		<Input type="password" name="password" id="password" />
+		<Input type="password" name="password" id="password" value={form?.message && ''} />
 		{#if form?.errors?.password}
 			<div class="text-red-700">
 				<span class="block sm:inline">{form?.errors?.password[0]}</span>
+			</div>
+		{/if}
+		{#if form?.message}
+			<div class="text-red-700">
+				<span class="block sm:inline">{form?.message}</span>
 			</div>
 		{/if}
 		<Button class="mt-4 w-full" type="submit">Log in</Button>
