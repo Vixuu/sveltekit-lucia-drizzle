@@ -9,7 +9,9 @@ declare global {
 		// interface Platform {}
 		
 		interface PageState {
-			showModal: boolean;
+			showModal?: boolean;
+			showModalAdd?: boolean;
+			showModalCat?: boolean;
 		}
 		interface Locals {
 			user: import('lucia').User | null;

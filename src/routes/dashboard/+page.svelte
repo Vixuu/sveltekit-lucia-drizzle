@@ -2,25 +2,48 @@
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/stores';
+	import * as Carousel from '$lib/components/ui/carousel/index.js';
 
 	export let data: PageData;
 	$: ({ todos } = data);
 	$: ({ categories } = data);
 
-	function showModal() {
+	function showModalCat() {
 		pushState('', {
-			showModal: true
+			showModalCat: true
+		});
+	}
+
+	function showModalAdd() {
+		pushState('', {
+			showModalAdd: true
 		});
 	}
 </script>
 
-<nav class="mb-16 flex items-center justify-between">
-	<h1 class="text-2xl">Hello {data.user.name}</h1>
+<nav class="mb-6 flex items-center justify-between">
+	<div>
+		{#if !$page.state.showModalAdd}
+			<Button variant="outline" on:click={showModalAdd}>New todo</Button>
+		{/if}
+		{#if $page.state.showModalAdd}
+			<Button variant="outline" on:click={() => pushState('', { showModalAdd: false })}
+				>Close</Button
+			>
+		{/if}
+		{#if !$page.state.showModalCat}
+			<Button variant="outline" on:click={showModalCat}>New category</Button>
+		{/if}
+		{#if $page.state.showModalCat}
+			<Button variant="outline" on:click={() => pushState('', { showModalCat: false })}
+				>Close</Button
+			>
+		{/if}
+	</div>
 	<div class="flex flex-row gap-3">
 		<Button variant="ghost"><a href="/profile">Profile</a></Button>
 		<form method="POST" action="/?/logout" use:enhance>
@@ -38,14 +61,8 @@
 		{/if}
 	</section> -->
 	<div class="m-auto flex-grow">
-		{#if !$page.state.showModal}
-			<Button variant="outline" on:click={showModal}>New todo</Button>
-		{/if}
-		{#if $page.state.showModal}
-			<Button variant="outline" on:click={() => history.back()}>Close</Button>
-		{/if}
-		{#if $page.state.showModal}
-			<div class="mt-5 rounded-lg border p-5">
+		{#if $page.state.showModalAdd}
+			<div class="my-6 rounded-lg border p-5">
 				<form method="POST" action="?/add_todo" use:enhance>
 					<h2 class="mb-3 text-2xl font-bold">Add todo</h2>
 					<div class="flex flex-col gap-3">
@@ -64,27 +81,73 @@
 				</form>
 			</div>
 		{/if}
-		{#each todos as todo}
-			<Card.Root class="my-5">
-				<Card.Header>
-					<div class="text-sm text-zinc-300">
-						{#each categories as category}
-							{#if category.id === todo.categoryId}
-								<div>Kategoria: {category.name}</div>
-							{/if}
-						{/each}
-					</div>
-					<Card.Title>{todo.title}</Card.Title>
-					<Card.Description>{todo?.desc}</Card.Description>
-				</Card.Header>
-				<Card.CardContent>
-					<form action="?/delete" method="POST" use:enhance>
-						<input type="hidden" hidden name="id" value={todo.id} />
-						<Button type="submit" variant="outline">Delete</Button>
-					</form>
-				</Card.CardContent>
-			</Card.Root>
-		{/each}
+		{#if $page.state.showModalCat}
+			<div class="my-6 rounded-lg border p-5">
+				<form method="POST" action="?/add_category" use:enhance>
+					<h2 class="mb-3 text-2xl font-bold">Add new category</h2>
+					<div class="flex flex-col gap-3">
+						<Input placeholder="name" name="name" type="text" />
 
+						<Button type="submit">Add</Button>
+					</div>
+				</form>
+			</div>
+		{/if}
+		<Carousel.Root>
+			<Carousel.Content>
+				<Carousel.Item>
+					<h1
+						class="mt-10 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0"
+					>
+						Wszystkie
+					</h1>
+					{#each todos as todo}
+						<Card.Root class="my-5 flex flex-row items-center justify-between px-6 py-3">
+							<div class="text-sm text-zinc-300">
+								{#each categories as category}
+									{#if category.id === todo.categoryId}
+										<Card.Title
+											><span class="text-sm text-zinc-400"
+												>{category.name} /
+											</span>{todo.title}</Card.Title
+										>
+									{/if}
+								{/each}
+								<Card.Description>{todo?.desc}</Card.Description>
+							</div>
+							<form action="?/delete" method="POST" use:enhance>
+								<input type="hidden" hidden name="id" value={todo.id} />
+								<Button type="submit" variant="outline">Delete</Button>
+							</form>
+						</Card.Root>
+					{/each}
+				</Carousel.Item>
+				{#each categories as category}
+					{#if todos.filter((t) => t.categoryId === category.id).length > 0}
+						<Carousel.Item>
+							<h1
+								class="mt-10 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0"
+							>
+								{category.name}
+							</h1>
+							{#each todos.filter((t) => t.categoryId === category.id) as todo}
+								<Card.Root class="my-5 flex flex-row items-center justify-between px-6 py-3">
+									<div>
+										<Card.Title>{todo.title}</Card.Title>
+										<Card.Description>{todo?.desc}</Card.Description>
+									</div>
+									<form action="?/delete" method="POST" use:enhance>
+										<input type="hidden" hidden name="id" value={todo.id} />
+										<Button type="submit" variant="outline">Delete</Button>
+									</form>
+								</Card.Root>
+							{/each}
+						</Carousel.Item>
+					{/if}
+				{/each}
+			</Carousel.Content>
+			<Carousel.Previous />
+			<Carousel.Next />
+		</Carousel.Root>
 	</div>
 </main>

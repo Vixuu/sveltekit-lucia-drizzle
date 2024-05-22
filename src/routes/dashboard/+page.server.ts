@@ -28,14 +28,12 @@ export const actions = {
 		const categoryId = data.get('category');
 
 		if (!locals.user) redirect(302, '/login');
-		const newTodo = await db
-			.insert(todoTable)
-			.values({
-				title: title.toString(),
-				desc: desc.toString(),
-				userId: locals.user.id,
-				categoryId: categoryId
-			});
+		const newTodo = await db.insert(todoTable).values({
+			title: title.toString(),
+			desc: desc.toString(),
+			userId: locals.user.id,
+			categoryId: categoryId
+		});
 
 		return { succes: true, newTodo };
 	},
@@ -51,5 +49,17 @@ export const actions = {
 		} catch (error) {
 			console.log(error);
 		}
+	},
+	add_category: async ({ locals, request }) => {
+		const data = await request.formData();
+		const name = data.get('name');
+
+		if (!locals.user) redirect(302, '/login');
+		const newCategory = await db.insert(todoCategoryTable).values({
+			name: name.toString(),
+			userId: locals.user.id
+		});
+
+		return { succes: true, newCategory };
 	}
 };
