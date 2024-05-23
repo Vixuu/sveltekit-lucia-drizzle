@@ -12,6 +12,8 @@ declare global {
 			showModal?: boolean;
 			showModalAdd?: boolean;
 			showModalCat?: boolean;
+			confirmDelete?: boolean;
+			buttonId?: number;
 		}
 		interface Locals {
 			user: import('lucia').User | null;

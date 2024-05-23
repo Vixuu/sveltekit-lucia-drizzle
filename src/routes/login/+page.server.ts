@@ -25,31 +25,14 @@ export const actions: Actions = {
 
 		try {
 			const result = loginSchema.parse({ username, password });
-			console.log(result);
+			if (!result) fail(400, { message: 'Invalid input' });
 		} catch (error) {
 			const errors = error.flatten().fieldErrors;
-			console.log(errors);
 			return {
 				errors,
 				data: { username }
 			};
 		}
-
-		// if (
-		// 	typeof username !== 'string' ||
-		// 	username.length < 3 ||
-		// 	username.length > 31 ||
-		// 	!/^[a-z0-9_-]+$/.test(username)
-		// ) {
-		// 	return fail(400, {
-		// 		message: 'Invalid username'
-		// 	});
-		// }
-		// if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
-		// 	return fail(400, {
-		// 		message: 'Invalid password'
-		// 	});
-		// }
 
 		const existingUser = await db.select().from(userTable).where(eq(userTable.name, username));
 		if (!existingUser[0]) {
