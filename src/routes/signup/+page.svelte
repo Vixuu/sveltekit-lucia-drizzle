@@ -8,7 +8,7 @@
 </script>
 
 <div class="d-flex m-auto mt-[20vh] w-80 justify-center">
-	<h1 class="mb-3 text-lg">Sign up</h1>
+	<h1 class="mb-3 text-center text-xl">Sign up</h1>
 	<form method="POST" action="?/signup" use:enhance>
 		<Label for="username">Username</Label>
 		<Input name="username" id="username" />
@@ -32,5 +32,8 @@
 			</div>
 		{/if}
 		<Button class="mt-4 w-full" type="submit">Continue</Button>
+		<div class="mt-2 text-center">
+			<a data-sveltekit-preload-data="tap" href="/login">Already have an account? Log in. </a>
+		</div>
 	</form>
 </div>

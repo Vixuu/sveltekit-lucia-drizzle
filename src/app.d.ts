@@ -7,7 +7,14 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
-
+		
+		interface PageState {
+			showModal?: boolean;
+			showModalAdd?: boolean;
+			showModalCat?: boolean;
+			confirmDelete?: boolean;
+			buttonId?: number;
+		}
 		interface Locals {
 			user: import('lucia').User | null;
 			session: import('lucia').Session | null;

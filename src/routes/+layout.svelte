@@ -2,6 +2,6 @@
 	import '../app.pcss';
 </script>
 
-<main class="p-5">
+<main class="m-auto max-w-4xl p-4">
 	<slot></slot>
 </main>

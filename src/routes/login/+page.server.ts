@@ -9,13 +9,11 @@ import { z } from 'zod';
 const loginSchema = z.object({
 	username: z
 		.string({ required_error: 'Username is required' })
-		.min(3, { message: 'Username must be at least 3 characters' })
-		.max(31, { message: 'Username must be less than 32 characters' })
+		.min(1, { message: 'Username is required' })
 		.trim(),
 	password: z
-		.string({ required_error: 'Username is required' })
-		.min(6, { message: 'Password must be at least 6 characters' })
-		.max(32, { message: 'Password must be less than 32 characters' })
+		.string({ required_error: 'Password is required' })
+		.min(1, { message: 'Password is required' })
 		.trim()
 });
 
@@ -27,37 +25,20 @@ export const actions: Actions = {
 
 		try {
 			const result = loginSchema.parse({ username, password });
-			console.log(result);
+			if (!result) fail(400, { message: 'Invalid input' });
 		} catch (error) {
 			const errors = error.flatten().fieldErrors;
-			console.log(errors);
 			return {
 				errors,
 				data: { username }
 			};
 		}
 
-		// if (
-		// 	typeof username !== 'string' ||
-		// 	username.length < 3 ||
-		// 	username.length > 31 ||
-		// 	!/^[a-z0-9_-]+$/.test(username)
-		// ) {
-		// 	return fail(400, {
-		// 		message: 'Invalid username'
-		// 	});
-		// }
-		// if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
-		// 	return fail(400, {
-		// 		message: 'Invalid password'
-		// 	});
-		// }
-
 		const existingUser = await db.select().from(userTable).where(eq(userTable.name, username));
 		if (!existingUser[0]) {
-			console.log('User not found');
 			return fail(400, {
-				message: 'Incorrect username or password'
+				message: 'Incorrect username or password',
+				data: { username }
 			});
 		}
 
@@ -65,7 +46,8 @@ export const actions: Actions = {
 
 		if (!validPassword) {
 			return fail(400, {
-				message: 'Incorrect username or password'
+				message: 'Incorrect username or password',
+				data: { username }
 			});
 		}
 

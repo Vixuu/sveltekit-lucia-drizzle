@@ -22,5 +22,14 @@ export const todoTable = sqliteTable('todo', {
 	desc: text('desc'),
 	userId: text('user_id')
 		.notNull()
+		.references(() => userTable.id),
+	categoryId: integer('category_id').references(() => todoCategoryTable.id)
+});
+
+export const todoCategoryTable = sqliteTable('todo_category', {
+	id: integer('id').primaryKey().notNull(),
+	name: text('name').notNull(),
+	userId: text('user_id')
+		.notNull()
 		.references(() => userTable.id)
 });
